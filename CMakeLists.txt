@@ -37,6 +37,7 @@ target_link_libraries(thread_pool
 
 add_executable(http_server src/main.cpp src/HttpServer.cpp src/Client.cpp)
 target_link_libraries(http_server
+	PRIVATE Threads::Threads
 	${LIBEVENT2_CORE})
 
 file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)

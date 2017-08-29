@@ -30,10 +30,10 @@ int HttpServer::listen(const char *host, int port) {
 		return -1;
 	}
 
-	listener = evconnlistener_new_bind(base, accept_connection_cb, NULL,
+	listener = evconnlistener_new_bind(base, accept_connection_cb, this,
 			(LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE | LEV_OPT_THREADSAFE),
 			-1, (struct sockaddr *)&sin, sizeof(sin)
-			);
+		);
 	if (listener == NULL) {
 		perror("evconnlistener_new_bind");
 		return -1;
@@ -53,16 +53,25 @@ void HttpServer::accept_connection_cb(struct evconnlistener *listener,
 		evutil_socket_t sock, struct sockaddr *addr, int sock_len, void *arg) {
 	(void)addr;     // unused parameter
 	(void)sock_len; // unused parameter
-	(void)arg;      // unused parameter
+	(void)listener; // unused parameter
+	HttpServer *server = (HttpServer *)arg;
 
 	std::cout << "new connection" << std::endl;
 
-	struct event_base *base = evconnlistener_get_base(listener);
+	struct event_base *base = event_base_new();//evconnlistener_get_base(listener);
 	struct bufferevent *buf_ev = bufferevent_socket_new(base, sock, BEV_OPT_CLOSE_ON_FREE);
 	Client *client = new Client(sock, buf_ev);
 
 	bufferevent_setcb(buf_ev, read_cb, write_cb, event_cb, client);
 	bufferevent_enable(buf_ev, (EV_READ | EV_WRITE));
+
+	auto f = server->system.spawn([base]() -> int{
+		std::cout << "thread event loop start" << std::endl;
+		event_base_dispatch(base);
+		event_base_free(base);
+		std::cout << "thread event loop finished" << std::endl;
+		return 0;
+	});
 }
 
 void HttpServer::accept_error_cb(struct evconnlistener *listener, void *arg) {

@@ -3,6 +3,11 @@
 #include <event2/listener.h>
 #include <event2/bufferevent.h>
 
+#include "thread_pool/Future.h"
+#include "thread_pool/System.h"
+
+using namespace me::eax::thread_pool;
+
 class HttpServer {
 public:
 	HttpServer();
@@ -16,6 +21,7 @@ public:
 private:
 	struct event_base *base;
 	struct evconnlistener *listener;
+	System system;
 
 	static void accept_connection_cb(struct evconnlistener *listener,
 			evutil_socket_t fd, struct sockaddr *addr, int sock_len,
