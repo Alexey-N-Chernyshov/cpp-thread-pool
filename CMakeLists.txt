@@ -21,6 +21,8 @@ set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS
 
 find_package(Threads)
 
+find_library(LIBEVENT2_CORE event_core)
+
 include_directories(include)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
@@ -30,7 +32,12 @@ if(NOT WIN32)
 endif()
 
 add_executable(thread_pool src/thread_pool.cpp)
-target_link_libraries(thread_pool PRIVATE Threads::Threads)
+target_link_libraries(thread_pool
+	PRIVATE Threads::Threads)
+
+add_executable(http_server src/main.cpp src/HttpServer.cpp src/Client.cpp)
+target_link_libraries(http_server
+	${LIBEVENT2_CORE})
 
 file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)
 add_custom_target(format
