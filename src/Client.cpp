@@ -5,12 +5,14 @@
 #include <event2/event.h>
 
 int Client::read(void *data, size_t len) {
-	struct evbuffer *buf_input = bufferevent_get_input(buf_ev);
-	return evbuffer_remove(buf_input, data, len);
+	(void)data;
+	(void)len;
+	return 0;
 }
 
 int Client::write(const void *data, size_t len) {
-	struct evbuffer *buf_output = bufferevent_get_output(buf_ev);
-	return evbuffer_add(buf_output, data, len);
+	(void)data;
+	(void)len;
+	return 0;
 }
 

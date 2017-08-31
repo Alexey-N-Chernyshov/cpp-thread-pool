@@ -3,6 +3,7 @@
 #include <event2/listener.h>
 #include <event2/bufferevent.h>
 
+#include "Client.h"
 #include "thread_pool/Future.h"
 #include "thread_pool/System.h"
 
@@ -22,6 +23,7 @@ private:
 	struct event_base *base;
 	struct evconnlistener *listener;
 	System system;
+	std::vector<Client *> workers;
 
 	static void accept_connection_cb(struct evconnlistener *listener,
 			evutil_socket_t fd, struct sockaddr *addr, int sock_len,
